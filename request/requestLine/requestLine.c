@@ -16,6 +16,8 @@ void getRequestLine(char rqL[], char buffer[], size_t size){
 	rqL[size] = '\0';
 }
 
+// Pointers to pointers. It was time to do some shit like that. 
+// Goddamned it.
 void splitRequestLine(char rqL[], char *splitReqL[],size_t size) {
 	// What if there is no 3 lines. I need to make it malloc
 	// so I can append dynamic values.
@@ -31,6 +33,7 @@ void splitRequestLine(char rqL[], char *splitReqL[],size_t size) {
 	if (counter != size || token != NULL) {
 		printf("Error msg: %s\n", strerror(errno));
 	}
+	//Add values to my string
 	
 
 }
@@ -55,6 +58,8 @@ int requestLine(RequestLine *requestLine, char buffer[], size_t size) {
 	getRequestLine(reqL, buffer, sizeReqLine-1);
 	
 	//Split Version
+	char *splitReqLine[3] = {0};
+	splitRequestLine(reqL, splitReqLine, 3);
 	
 
 
