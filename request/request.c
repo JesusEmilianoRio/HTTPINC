@@ -30,16 +30,14 @@ void initBuffer(Buffer *buffer) {
 	buffer->count = 0;
 }
 
-
-
 typedef struct _request {
+	RequestLine requestLine;
 	State state;
 } Request;
 
 void parseRequest(Request *request, size_t bufferSize){
 	
 	while(1) {
-		
 		
 	}
 	

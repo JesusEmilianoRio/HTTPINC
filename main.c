@@ -48,8 +48,8 @@ int main() {
 
 	while (1) {
 		// Accept connection.
-		int recentSocket = accept(newSocket, (struct sockaddr*) &addr, (socklen_t*)&lenAddr);
-		if (recentSocket == -1) {
+		int clientSocket = accept(newSocket, (struct sockaddr*) &addr, (socklen_t*)&lenAddr);
+		if (clientSocket == -1) {
 			perror("Couldn't accept connection.\n");
 			continue;
 		}
@@ -57,14 +57,14 @@ int main() {
 		// ======================= HANDLING BUFFER =================================
 		// Aqui empieza mi logica de request. Aqui envio los datos del buffer por cada mensaje
 		// que me llega
-		char *ptr = request(recentSocket);
+		char *ptr = request(clientSocket);
 		free(ptr);
 
 
 		// ========================= END BUFFER ====================================
 		
 		// Close socket
-		close(recentSocket);
+		close(clientSocket);
 		printf("Connection closed.\n");
 
 	}
