@@ -31,7 +31,7 @@ void splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], siz
 	}
 }
 
-void splitHttpVersionMethod(int clientSocket, char *httpVersion, char *splitHttpVersion[], size_t size) {
+void splitHttpVersionMethod(int clientSocket, char httpVersion[], char *splitHttpVersion[], size_t size) {
 	char *token = strtok(httpVersion, "/");
 	size_t counter = 0;
 
@@ -65,7 +65,7 @@ void splitHttpVersionMethod(int clientSocket, char *httpVersion, char *splitHttp
 //Buffer from request, and size from count;
 //Size without +1
 // Should I return int? what about integer overflow?
-int requestLine(int clientSocket, RequestLine *requestLine, char buffer[], size_t size) {
+int parseRequestLine(int clientSocket, RequestLine *requestLine, char buffer[], size_t size) {
 	char* index = (char*) memmem(buffer, size, crlf, strlen(crlf));
 	
 	if (index == NULL) {

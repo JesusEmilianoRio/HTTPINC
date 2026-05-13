@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "./request.h"
+#include "requestLine/requestLine.h"
 
 extern int errno;
 
@@ -20,9 +21,9 @@ typedef enum {
 
 //Init buffer
 typedef struct _buffer {
-	char *items;
 	size_t capacity;
 	size_t count;
+	char *items;
 } Buffer;
 
 void initBuffer(Buffer *buffer) {
@@ -30,14 +31,38 @@ void initBuffer(Buffer *buffer) {
 	buffer->count = 0;
 }
 
+
 typedef struct _request {
-	RequestLine requestLine;
+	RequestLine *requestLine;
 	State state;
 } Request;
 
-void parseRequest(Request *request, size_t bufferSize){
-	
+// De donde obtengo mi state si es no se pued eenum?
+// El problema radica en que esta funcion debe recibir un buffer[n:n]
+// con un size predeterminado y devolverme mis bytesParsed para el siguiente
+// request header.
+// El problema es que paso un char *buffer, en vez de un buffer[].
+// Nota: SI parseo hasta \r\n, entonces debo devolver mis bytes hasta
+// \r\n y no despues, para que mi requestHeader empiece donde debe.
+void parseRequest(int fildes, Request *request, char buffer[], size_t bufferSize){
+	request->state = STATE_INIT;
+	int reader = 0;
 	while(1) {
+		switch (request->state) {
+			//This case is unnecessary, but the compile errors
+			//was driving me crazy.
+			case STATE_INIT:
+				request->state = STATE_REQUESTLINE;
+			case STATE_REQUESTLINE:
+				int bytesParsed = parseRequestLine(fildes, request->requestLine,  buffer, bufferSize);
+			case STATE_REQUESTHEADER:
+				break;
+			case STATE_REQUESTBODY:
+				break;
+			case STATE_DONE:
+				break;
+		
+		}
 		
 	}
 	
@@ -71,5 +96,3 @@ char *request(int fildes){
 
 	return buffer.items;
 }
-
-

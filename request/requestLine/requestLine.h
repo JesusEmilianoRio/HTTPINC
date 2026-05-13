@@ -1,5 +1,5 @@
 #pragma once
-#include <cstddef>
+#include <stddef.h>
 #include "../request.h"
 
-int requestLine(int clientSocket, RequestLine *requestLine, char buffer[], size_t size);
+int parseRequestLine(int clientSocket, RequestLine *requestLine, char buffer[], size_t size);
