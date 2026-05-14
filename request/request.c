@@ -23,7 +23,7 @@ typedef enum {
 typedef struct _buffer {
 	size_t capacity;
 	size_t count;
-	char *items;
+	char* items;
 } Buffer;
 
 void initBuffer(Buffer *buffer) {
@@ -44,8 +44,10 @@ typedef struct _request {
 // El problema es que paso un char *buffer, en vez de un buffer[].
 // Nota: SI parseo hasta \r\n, entonces debo devolver mis bytes hasta
 // \r\n y no despues, para que mi requestHeader empiece donde debe.
-void parseRequest(int fildes, Request *request, char buffer[], size_t bufferSize){
+int parseRequest(int fildes, Request *request, char* buffer, size_t bufferSize){
 	request->state = STATE_INIT;
+
+	int bytesParsed = 0;
 	int reader = 0;
 	while(1) {
 		switch (request->state) {
@@ -54,7 +56,12 @@ void parseRequest(int fildes, Request *request, char buffer[], size_t bufferSize
 			case STATE_INIT:
 				request->state = STATE_REQUESTLINE;
 			case STATE_REQUESTLINE:
-				int bytesParsed = parseRequestLine(fildes, request->requestLine,  buffer, bufferSize);
+				bytesParsed = parseRequestLine(fildes, request->requestLine,  buffer, bufferSize);
+
+				if (bytesParsed == -1) {
+					return -1;
+				}
+				break;
 			case STATE_REQUESTHEADER:
 				break;
 			case STATE_REQUESTBODY:
@@ -63,7 +70,6 @@ void parseRequest(int fildes, Request *request, char buffer[], size_t bufferSize
 				break;
 		
 		}
-		
 	}
 	
 }
@@ -78,6 +84,7 @@ char *request(int fildes){
 	initBuffer(&buffer);
 
 	// N length of bytes read.
+	size_t i = 0;
 	size_t n = 0;
 	while (request.state != STATE_DONE) {
 		if ((n = read(fildes, buffer.items + buffer.count, buffer.capacity - buffer.count)) > 0) {
@@ -91,6 +98,7 @@ char *request(int fildes){
 					printf("Error msg: %s\n", strerror(errno));
 				}
 			}
+
 		}
 	}
 
