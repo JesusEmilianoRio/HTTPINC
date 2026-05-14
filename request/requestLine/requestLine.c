@@ -62,9 +62,6 @@ void splitHttpVersionMethod(int clientSocket, char httpVersion[], char *splitHtt
 	}
 }
 
-//Buffer from request, and size from count;
-//Size without +1
-// Should I return int? what about integer overflow?
 int parseRequestLine(int clientSocket, RequestLine *requestLine, char buffer[], size_t size) {
 	char* index = (char*) memmem(buffer, size, crlf, strlen(crlf));
 	
