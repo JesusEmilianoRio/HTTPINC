@@ -6,6 +6,10 @@
 
 #include "../request.h"
 
+//TODO:
+//1. Change strtok. It is not thread-safe and also changes the current string.
+//I need to use strtok_r for multi-thread.
+//2. Find a way to parse a char*
 
 char crlf[] = "\r\n";
 char *sp = " ";
