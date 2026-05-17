@@ -62,7 +62,11 @@ void splitHttpVersionMethod(int clientSocket, char httpVersion[], char *splitHtt
 		send(clientSocket, errorMSG, sizeof(errorMSG)/sizeof(errorMSG[0]), 0);
 	}
 }
-
+/*
+ * TODO:
+ * 1. REVISAR MEMORY ALIGNMENT DE MIS STRUCTS.
+ * 2. ENTENDER LA LOGICA DE MIS CHAR.
+ * */
 int parseRequestLine(int clientSocket, RequestLine *requestLine, char buffer[], size_t size) {
 	char* index = (char*) memmem(buffer, size, crlf, strlen(crlf));
 	

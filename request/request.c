@@ -23,12 +23,19 @@ typedef enum {
 typedef struct _buffer {
 	size_t capacity;
 	size_t count;
-	char* items;
+	char *items;
 } Buffer;
 
 void initBuffer(Buffer *buffer) {
 	buffer->capacity = 8;
 	buffer->count = 0;
+
+	buffer->items = (char*) malloc(buffer->capacity);
+
+	if (buffer->items == NULL) {
+		printf("Error msg: %s\n", strerror(errno));
+	}
+	memset(buffer->items, 0, buffer->capacity);
 }
 
 
@@ -84,7 +91,6 @@ char *request(int fildes){
 	initBuffer(&buffer);
 
 	// N length of bytes read.
-	size_t i = 0;
 	size_t n = 0;
 	while (request.state != STATE_DONE) {
 		if ((n = read(fildes, buffer.items + buffer.count, buffer.capacity - buffer.count)) > 0) {
