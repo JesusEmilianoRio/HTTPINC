@@ -6,11 +6,6 @@
 
 #include "../request.h"
 
-//TODO:
-//1. Change strtok. It is not thread-safe and also changes the current string.
-//I need to use strtok_r for multi-thread.
-//2. Find a way to parse a char*
-
 char crlf[] = "\r\n";
 char *sp = " ";
 
@@ -18,14 +13,15 @@ void getRequestLine(char rqL[], char buffer[], size_t size){
 	strncpy(rqL, buffer, size);
 	rqL[size] = '\0';
 }
-
+// TODO: NEED TO VALIDATE MY TOKENS.
 void splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], size_t size) {
-	char *token = strtok(rqL, sp);
+	char *spRequest;
+	char *token = strtok_r(rqL, sp, NULL);
 	size_t counter = 0;
 
 	for (size_t i = 0; i < size && token != NULL; i++) {
 		splitReqL[i] = token;
-		token = strtok(NULL, sp);
+		token = strtok_r(NULL, sp, &spRequest);
 		counter++;
 	}
 
@@ -36,12 +32,13 @@ void splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], siz
 }
 
 void splitHttpVersionMethod(int clientSocket, char httpVersion[], char *splitHttpVersion[], size_t size) {
-	char *token = strtok(httpVersion, "/");
+	char *spRequest;
+	char *token = strtok_r(httpVersion, "/", &spRequest);
 	size_t counter = 0;
 
 	for (size_t i = 0; i < size && token != NULL; i++) {
 		splitHttpVersion[i] = token;
-		token = strtok(NULL, "/");
+		token = strtok_r(NULL, "/", &spRequest);
 		counter++;
 	}
 
