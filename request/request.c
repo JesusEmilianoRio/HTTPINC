@@ -85,12 +85,14 @@ char *request(int fildes){
 
 	// N length of bytes read.
 	size_t n = 0;
+	size_t nBytes = 8;
 	while (request.state != STATE_DONE) {
-		if ((n = read(fildes, buffer.items + buffer.count, buffer.capacity - buffer.count)) > 0) {
-			buffer.count += n;
-			
-			//1. Esto va a mi maquina de estado. Debo devolver hasta la cantidad n leida.	
+		char octetBuffer[8] = {0};
 
+		//I have a conflict with NUL. It seems that I have to learn more about index.
+		if ((n = read(fildes, octetBuffer, nBytes-1)) > 0) {
+
+			buffer.count += n;
 			if (buffer.count >= buffer.capacity) {
 				buffer.capacity = buffer.capacity << 1;
 				buffer.items = (char*) realloc(buffer.items, buffer.capacity);
@@ -99,6 +101,9 @@ char *request(int fildes){
 					printf("Error msg: %s\n", strerror(errno));
 				}
 			}
+
+			//I must pass buffer.items to my parseRequest.
+			strcat(buffer.items, octetBuffer);
 
 
 		}
