@@ -44,13 +44,6 @@ typedef struct _request {
 	State state;
 } Request;
 
-// De donde obtengo mi state si es no se pued eenum?
-// El problema radica en que esta funcion debe recibir un buffer[n:n]
-// con un size predeterminado y devolverme mis bytesParsed para el siguiente
-// request header.
-// El problema es que paso un char *buffer, en vez de un buffer[].
-// Nota: SI parseo hasta \r\n, entonces debo devolver mis bytes hasta
-// \r\n y no despues, para que mi requestHeader empiece donde debe.
 int parseRequest(int fildes, Request *request, char* buffer, size_t bufferSize){
 	request->state = STATE_INIT;
 
@@ -96,6 +89,8 @@ char *request(int fildes){
 		if ((n = read(fildes, buffer.items + buffer.count, buffer.capacity - buffer.count)) > 0) {
 			buffer.count += n;
 			
+			//1. Esto va a mi maquina de estado. Debo devolver hasta la cantidad n leida.	
+
 			if (buffer.count >= buffer.capacity) {
 				buffer.capacity = buffer.capacity << 1;
 				buffer.items = (char*) realloc(buffer.items, buffer.capacity);

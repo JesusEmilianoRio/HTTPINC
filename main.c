@@ -10,6 +10,8 @@
 //External Functions
 #include "request/request.h"
 
+
+
 int main() {
 	// Create Socket
 	int newSocket = socket(AF_INET, SOCK_STREAM, 0);
