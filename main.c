@@ -47,7 +47,7 @@ int main() {
 
 	printf("Listening on PORT: %hd\n", ntohs(addr.sin_port));
 
-
+	char*ptr = NULL;
 	while (1) {
 		// Accept connection.
 		int clientSocket = accept(newSocket, (struct sockaddr*) &addr, (socklen_t*)&lenAddr);
@@ -59,19 +59,20 @@ int main() {
 		// ======================= HANDLING BUFFER =================================
 		// Aqui empieza mi logica de request. Aqui envio los datos del buffer por cada mensaje
 		// que me llega
-		char *ptr = request(clientSocket);
-		free(ptr);
+		ptr = request(clientSocket);
 
 
 		// ========================= END BUFFER ====================================
 		
 		// Close socket
 		close(clientSocket);
+		free(ptr);
 		printf("Connection closed.\n");
 
 	}
 	// Close listening.
 	close(listenSocket);
+
 
 	return 0;
 }

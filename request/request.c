@@ -13,7 +13,6 @@ extern int errno;
 // Initlize state
 typedef enum {
 	STATE_INIT,
-	STATE_REQUESTLINE,
 	STATE_REQUESTHEADER,
 	STATE_REQUESTBODY,
 	STATE_DONE,
@@ -51,11 +50,7 @@ int parseRequest(int fildes, Request *request, char* buffer, size_t bufferSize){
 	int reader = 0;
 	while(1) {
 		switch (request->state) {
-			//This case is unnecessary, but the compile errors
-			//was driving me crazy.
 			case STATE_INIT:
-				request->state = STATE_REQUESTLINE;
-			case STATE_REQUESTLINE:
 				bytesParsed = parseRequestLine(fildes, request->requestLine,  buffer, bufferSize);
 
 				if (bytesParsed == -1) {
@@ -74,6 +69,7 @@ int parseRequest(int fildes, Request *request, char* buffer, size_t bufferSize){
 	
 }
 
+//Empece 6:30 pm
 char *request(int fildes){
 	//Init Request
 	Request request = {0};
@@ -87,7 +83,7 @@ char *request(int fildes){
 	size_t n = 0;
 	size_t nBytes = 8;
 	while (request.state != STATE_DONE) {
-		char octetBuffer[8] = {0};
+		char octetBuffer[8] = {'\0'};
 
 		//I have a conflict with NUL. It seems that I have to learn more about index.
 		if ((n = read(fildes, octetBuffer, nBytes-1)) > 0) {
@@ -104,8 +100,8 @@ char *request(int fildes){
 
 			//I must pass buffer.items to my parseRequest.
 			strcat(buffer.items, octetBuffer);
-
-
+			//I will read n Bytes.
+			int byte = parseRequest(fildes, &request, buffer.items, buffer.count);
 		}
 	}
 
