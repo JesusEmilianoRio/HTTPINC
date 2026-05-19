@@ -34,7 +34,7 @@ void initBuffer(Buffer *buffer) {
 	if (buffer->items == NULL) {
 		printf("Error msg: %s\n", strerror(errno));
 	}
-	memset(buffer->items, 0, buffer->capacity);
+	memset(buffer->items, '\0', buffer->capacity);
 }
 
 
@@ -46,16 +46,16 @@ typedef struct _request {
 int parseRequest(int fildes, Request *request, char* buffer, size_t bufferSize){
 	request->state = STATE_INIT;
 
-	int bytesParsed = 0;
 	int reader = 0;
 	while(1) {
 		switch (request->state) {
 			case STATE_INIT:
-				bytesParsed = parseRequestLine(fildes, request->requestLine,  buffer, bufferSize);
+				int bytesParsed = parseRequestLine(fildes, request->requestLine,  buffer, bufferSize);
 
 				if (bytesParsed == -1) {
 					return -1;
 				}
+				reader += bytesParsed;
 				break;
 			case STATE_REQUESTHEADER:
 				break;
@@ -98,10 +98,15 @@ char *request(int fildes){
 				}
 			}
 
-			//I must pass buffer.items to my parseRequest.
+			//Concat till \0.
 			strcat(buffer.items, octetBuffer);
-			//I will read n Bytes.
+			//I pass till n bytes.
 			int byte = parseRequest(fildes, &request, buffer.items, buffer.count);
+
+			if (byte == -1) {
+				continue;
+			}
+
 		}
 	}
 
