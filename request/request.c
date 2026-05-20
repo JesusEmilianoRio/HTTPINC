@@ -82,6 +82,7 @@ char *request(int fildes){
 	// N length of bytes read.
 	size_t n = 0;
 	size_t nBytes = 8;
+	//Firs state
 	while (request.state != STATE_DONE) {
 		char octetBuffer[8] = {'\0'};
 
@@ -92,13 +93,13 @@ char *request(int fildes){
 			if (buffer.count >= buffer.capacity) {
 				buffer.capacity = buffer.capacity << 1;
 				buffer.items = (char*) realloc(buffer.items, buffer.capacity);
-
 				if (buffer.items == NULL) {
 					printf("Error msg: %s\n", strerror(errno));
 				}
 			}
 
 			//Concat till \0.
+			//Only if it ain't init as 0;
 			strcat(buffer.items, octetBuffer);
 			//I pass till n bytes.
 			int byte = parseRequest(fildes, &request, buffer.items, buffer.count);
