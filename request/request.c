@@ -96,12 +96,12 @@ char *request(int fildes){
 				if (buffer.items == NULL) {
 					printf("Error msg: %s\n", strerror(errno));
 				}
+				char *ptr = buffer.items + buffer.count;
+				memset(ptr, '\0', buffer.capacity - buffer.count);
 			}
 
-			//Concat till \0.
-			//Only if it ain't init as 0;
+			// Know I know why strcat is inneficient.
 			strcat(buffer.items, octetBuffer);
-			//I pass till n bytes.
 			int byte = parseRequest(fildes, &request, buffer.items, buffer.count);
 
 			if (byte == -1) {
