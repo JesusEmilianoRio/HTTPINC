@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "./request.h"
+#include "../utils/functionalities.h"
 #include "requestLine/requestLine.h"
 
 extern int errno;
@@ -34,7 +35,6 @@ void initBuffer(Buffer *buffer) {
 	if (buffer->items == NULL) {
 		printf("Error msg: %s\n", strerror(errno));
 	}
-	memset(buffer->items, '\0', buffer->capacity);
 }
 
 
@@ -69,7 +69,6 @@ int parseRequest(int fildes, Request *request, char* buffer, size_t bufferSize){
 	
 }
 
-//Empece 6:30 pm
 char *request(int fildes){
 	//Init Request
 	Request request = {0};
@@ -82,11 +81,11 @@ char *request(int fildes){
 	// N length of bytes read.
 	size_t n = 0;
 	size_t nBytes = 8;
-	//Firs state
+	size_t currentPointerToBuffer = 0;
+	//First state
 	while (request.state != STATE_DONE) {
 		char octetBuffer[8] = {'\0'};
 
-		//I have a conflict with NUL. It seems that I have to learn more about index.
 		if ((n = read(fildes, octetBuffer, nBytes-1)) > 0) {
 
 			buffer.count += n;
@@ -96,18 +95,14 @@ char *request(int fildes){
 				if (buffer.items == NULL) {
 					printf("Error msg: %s\n", strerror(errno));
 				}
-				char *ptr = buffer.items + buffer.count;
-				memset(ptr, '\0', buffer.capacity - buffer.count);
 			}
 
-			// Know I know why strcat is inneficient.
-			strcat(buffer.items, octetBuffer);
+			currentPointerToBuffer = mystrcat(currentPointerToBuffer, buffer.items, octetBuffer);
 			int byte = parseRequest(fildes, &request, buffer.items, buffer.count);
 
 			if (byte == -1) {
 				continue;
 			}
-
 		}
 	}
 
