@@ -99,9 +99,6 @@ char *request(int fildes){
 			}
 
 			currentPointerToBuffer = mystrcat(currentPointerToBuffer, buffer.items, octetBuffer);
-			// Devuelvo 0 o 1 dependiendo de si la funcion salio exitosa. 
-			// Por lo que voy a tener que... que???? Crear mi primer estado.
-			//int byte = parseRequest(fildes, &request, buffer.items, buffer.count);
 
 		}
 	}

@@ -9,12 +9,12 @@
 char crlf[] = "\r\n";
 char *sp = " ";
 
-void getRequestLine(char rqL[], char buffer[], size_t size){
+void getRequestLine(char *rqL, char *buffer, size_t size){
 	strncpy(rqL, buffer, size);
 	rqL[size] = '\0';
 }
 
-void splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], size_t size) {
+void splitRequestLineMethod(int clientSocket, char *rqL, char *splitReqL[], size_t size) {
 	char *spRequest;
 	char *token = strtok_r(rqL, sp, NULL);
 	size_t counter = 0;
@@ -31,7 +31,7 @@ void splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], siz
 	}
 }
 
-void splitHttpVersionMethod(int clientSocket, char httpVersion[], char *splitHttpVersion[], size_t size) {
+void splitHttpVersionMethod(int clientSocket, char *httpVersion, char *splitHttpVersion[], size_t size) {
 	char *spRequest;
 	char *token = strtok_r(httpVersion, "/", &spRequest);
 	size_t counter = 0;
@@ -62,12 +62,8 @@ void splitHttpVersionMethod(int clientSocket, char httpVersion[], char *splitHtt
 		send(clientSocket, errorMSG, sizeof(errorMSG)/sizeof(errorMSG[0]), 0);
 	}
 }
-/*
- * TODO:
- * 1. REVISAR MEMORY ALIGNMENT DE MIS STRUCTS.
- * 2. ENTENDER LA LOGICA DE MIS CHAR.
- * */
-int parseRequestLine(int clientSocket, RequestLine *requestLine, char buffer[], size_t size, size_t *bytesRead) {
+
+int parseRequestLine(int clientSocket, RequestLine *requestLine, char *buffer, size_t size, size_t *bytesRead) {
 	char* index = (char*) memmem(buffer, size, crlf, strlen(crlf));
 	
 	if (index == NULL) {
