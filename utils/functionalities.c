@@ -10,3 +10,4 @@ size_t mystrcat(size_t pointer, char *dest, char *src) {
 
 	return pointer;
 }
+

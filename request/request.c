@@ -43,19 +43,20 @@ typedef struct _request {
 	State state;
 } Request;
 
-int parseRequest(int fildes, Request *request, char* buffer, size_t bufferSize){
+int parseRequest(int fildes, Request *request, char* buffer, size_t bufferCount){
 	request->state = STATE_INIT;
 
-	int reader = 0;
+	//All my returns from my functions could be -1 if something went wrong, or 0 if CRLF is at index 0.
+	size_t reader = 0;
 	while(1) {
 		switch (request->state) {
 			case STATE_INIT:
-				int bytesParsed = parseRequestLine(fildes, request->requestLine,  buffer, bufferSize);
+				// I have to check pointers to pointers. GADDEMIT
+				int transition = parseRequestLine(fildes, request->requestLine,  buffer, bufferCount, &reader);
 
-				if (bytesParsed == -1) {
+				if (transition == -1) {
 					return -1;
 				}
-				reader += bytesParsed;
 				break;
 			case STATE_REQUESTHEADER:
 				break;
@@ -98,11 +99,10 @@ char *request(int fildes){
 			}
 
 			currentPointerToBuffer = mystrcat(currentPointerToBuffer, buffer.items, octetBuffer);
-			int byte = parseRequest(fildes, &request, buffer.items, buffer.count);
+			// Devuelvo 0 o 1 dependiendo de si la funcion salio exitosa. 
+			// Por lo que voy a tener que... que???? Crear mi primer estado.
+			//int byte = parseRequest(fildes, &request, buffer.items, buffer.count);
 
-			if (byte == -1) {
-				continue;
-			}
 		}
 	}
 

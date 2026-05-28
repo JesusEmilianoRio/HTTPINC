@@ -13,7 +13,7 @@ void getRequestLine(char rqL[], char buffer[], size_t size){
 	strncpy(rqL, buffer, size);
 	rqL[size] = '\0';
 }
-// TODO: NEED TO VALIDATE MY TOKENS.
+
 void splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], size_t size) {
 	char *spRequest;
 	char *token = strtok_r(rqL, sp, NULL);
@@ -67,7 +67,7 @@ void splitHttpVersionMethod(int clientSocket, char httpVersion[], char *splitHtt
  * 1. REVISAR MEMORY ALIGNMENT DE MIS STRUCTS.
  * 2. ENTENDER LA LOGICA DE MIS CHAR.
  * */
-int parseRequestLine(int clientSocket, RequestLine *requestLine, char buffer[], size_t size) {
+int parseRequestLine(int clientSocket, RequestLine *requestLine, char buffer[], size_t size, size_t *bytesRead) {
 	char* index = (char*) memmem(buffer, size, crlf, strlen(crlf));
 	
 	if (index == NULL) {
@@ -95,6 +95,7 @@ int parseRequestLine(int clientSocket, RequestLine *requestLine, char buffer[], 
 	requestLine->method = splitReqLine[0];
 	requestLine->requestTarget = splitReqLine[1];
 	requestLine->method = splitReqLine[2];
-	return bytesParsed;
+	*bytesRead += bytesParsed;
+	return 0;
 }
 
