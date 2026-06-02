@@ -43,21 +43,23 @@ typedef struct _request {
 	State state;
 } Request;
 
-int parseRequest(int fildes, Request *request, char* buffer, size_t bufferCount){
+int parseRequest(int fildes, Request *request, char* buffer, size_t bufferCount, size_t *pointerReader){
 	request->state = STATE_INIT;
-
-	//All my returns from my functions could be -1 if something went wrong, or 0 if CRLF is at index 0.
+	int transition = 0;
 	size_t reader = 0;
+
 	while(1) {
 		switch (request->state) {
 			case STATE_INIT:
 				// I have to check pointers to pointers. GADDEMIT
-				int transition = parseRequestLine(fildes, request->requestLine,  buffer, bufferCount, &reader);
+				transition = parseRequestLine(fildes, request->requestLine,  buffer, bufferCount, &reader);
 
 				if (transition == -1) {
 					return -1;
 				}
-				break;
+
+				request->state = STATE_REQUESTHEADER;
+				*pointerBuffer += reader;
 			case STATE_REQUESTHEADER:
 				break;
 			case STATE_REQUESTBODY:
@@ -81,13 +83,14 @@ char *request(int fildes){
 
 	// N length of bytes read.
 	size_t n = 0;
-	size_t nBytes = 8;
+	size_t octetLength = 8;
 	size_t currentPointerToBuffer = 0;
+	size_t pointerReader = 0;
 	//First state
 	while (request.state != STATE_DONE) {
 		char octetBuffer[8] = {'\0'};
 
-		if ((n = read(fildes, octetBuffer, nBytes-1)) > 0) {
+		if ((n = read(fildes, octetBuffer, octetLength-1)) > 0) {
 
 			buffer.count += n;
 			if (buffer.count >= buffer.capacity) {
@@ -99,6 +102,14 @@ char *request(int fildes){
 			}
 
 			currentPointerToBuffer = mystrcat(currentPointerToBuffer, buffer.items, octetBuffer);
+			//Aqui mando mi buffer.items[:]. Debo simular el sliding window.
+			//Por que complica todo C, maldita sea lo amo. Es un lenguaje imperativo/.
+			int transition = parseRequest(fildes, &request, buffer.items, buffer.count, &pointerReader);
+
+			if (transition == -1) {
+				continue;
+			}
+
 
 		}
 	}

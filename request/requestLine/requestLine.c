@@ -66,6 +66,7 @@ void splitHttpVersionMethod(int clientSocket, char *httpVersion, char *splitHttp
 int parseRequestLine(int clientSocket, RequestLine *requestLine, char *buffer, size_t size, size_t *bytesRead) {
 	char* index = (char*) memmem(buffer, size, crlf, strlen(crlf));
 	
+	// It will return me to my init state.
 	if (index == NULL) {
 		return -1;
 	}
