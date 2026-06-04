@@ -11,8 +11,17 @@ size_t mystrcat(size_t pointer, char *dest, char *src) {
 	return pointer;
 }
 
-void mystrcpy(char *rqL, char *buffer, size_t size){
+void mystrcpy(char rqL[], char *buffer, size_t size){
 	size_t i = 0;
+
+	while (1) {
+		if (i == size - 1) {
+			rqL[i] = '\0';
+			break;
+		}
+		rqL[i] = buffer[i];
+		i++;
+	}
 
 }
 

@@ -102,14 +102,13 @@ char *request(int fildes){
 			}
 
 			currentPointerToBuffer = mystrcat(currentPointerToBuffer, buffer.items, octetBuffer);
-			printf("Reader: %s\n", buffer.items);
-			continue;
 			int transition = parseRequest(fildes, &request, buffer.items, buffer.count, &pointerReader);
 
 			if (transition == -1) {
 				continue;
 			}
 
+			printf("Reader: %s\n", buffer.items);
 
 		}
 	}

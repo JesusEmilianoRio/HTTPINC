@@ -5,18 +5,14 @@
 #include <stddef.h>
 
 #include "../request.h"
+#include "../../utils/functionalities.h"
 
 char crlf[] = "\r\n";
 char *sp = " ";
 
-void getRequestLine(char *rqL, char *buffer, size_t size){
-	//This returns a value. Fuck. Fuck this shit man.
-	strncpy(rqL, buffer, size);
-	rqL[size] = '\0';
-}
-
-void splitRequestLineMethod(int clientSocket, char *rqL, char *splitReqL[], size_t size) {
+void splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], size_t size) {
 	char *spRequest;
+	// MI segmentation fault nace de aqui, perra, como ve mija.
 	char *token = strtok_r(rqL, sp, NULL);
 	size_t counter = 0;
 
@@ -79,9 +75,10 @@ int parseRequestLine(int clientSocket, RequestLine *requestLine, char *buffer, s
 	size_t sizeReqLine = (index - buffer) + 1;
 	char reqL[sizeReqLine];
 	memset(reqL, 0, sizeReqLine);
-	getRequestLine(reqL, buffer, sizeReqLine);
+	mystrcpy(reqL, buffer, sizeReqLine);
 	
-	//Split Version
+	// Split Version
+	// Creo que mi splitReqLine debe ser una memoria en el heap.
 	char *splitReqLine[3] = {0};
 	splitRequestLineMethod(clientSocket, reqL, splitReqLine, 3);
 
