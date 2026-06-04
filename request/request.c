@@ -44,7 +44,6 @@ typedef struct _request {
 } Request;
 
 int parseRequest(int fildes, Request *request, char* buffer, size_t bufferCount, size_t *pointerReader){
-	request->state = STATE_INIT;
 	int transition = 0;
 	size_t reader = 0;
 
@@ -59,8 +58,9 @@ int parseRequest(int fildes, Request *request, char* buffer, size_t bufferCount,
 				}
 
 				request->state = STATE_REQUESTHEADER;
-				*pointerBuffer += reader;
+				*pointerReader += reader;
 			case STATE_REQUESTHEADER:
+				//Desde aqui puedo pasar mi buffer hasta mi position de pointerReader.
 				break;
 			case STATE_REQUESTBODY:
 				break;
@@ -102,8 +102,8 @@ char *request(int fildes){
 			}
 
 			currentPointerToBuffer = mystrcat(currentPointerToBuffer, buffer.items, octetBuffer);
-			//Aqui mando mi buffer.items[:]. Debo simular el sliding window.
-			//Por que complica todo C, maldita sea lo amo. Es un lenguaje imperativo/.
+			printf("Reader: %s\n", buffer.items);
+			continue;
 			int transition = parseRequest(fildes, &request, buffer.items, buffer.count, &pointerReader);
 
 			if (transition == -1) {

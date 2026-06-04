@@ -11,3 +11,13 @@ size_t mystrcat(size_t pointer, char *dest, char *src) {
 	return pointer;
 }
 
+void mystrcpy(char *rqL, char *buffer, size_t size){
+	size_t i = 0;
+
+}
+
+//void getRequestLine(char *rqL, char *buffer, size_t size){
+//	//This returns a value. Fuck. Fuck this shit man.
+//	strncpy(rqL, buffer, size);
+//	rqL[size] = '\0';
+//}

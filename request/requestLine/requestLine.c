@@ -10,6 +10,7 @@ char crlf[] = "\r\n";
 char *sp = " ";
 
 void getRequestLine(char *rqL, char *buffer, size_t size){
+	//This returns a value. Fuck. Fuck this shit man.
 	strncpy(rqL, buffer, size);
 	rqL[size] = '\0';
 }
@@ -78,7 +79,7 @@ int parseRequestLine(int clientSocket, RequestLine *requestLine, char *buffer, s
 	size_t sizeReqLine = (index - buffer) + 1;
 	char reqL[sizeReqLine];
 	memset(reqL, 0, sizeReqLine);
-	getRequestLine(reqL, buffer, sizeReqLine-1);
+	getRequestLine(reqL, buffer, sizeReqLine);
 	
 	//Split Version
 	char *splitReqLine[3] = {0};

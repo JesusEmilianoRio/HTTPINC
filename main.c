@@ -61,7 +61,6 @@ int main() {
 		// que me llega
 		ptr = request(clientSocket);
 
-
 		// ========================= END BUFFER ====================================
 		
 		// Close socket
