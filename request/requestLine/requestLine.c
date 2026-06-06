@@ -12,8 +12,7 @@ char *sp = " ";
 
 void splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], size_t size) {
 	char *spRequest;
-	// MI segmentation fault nace de aqui, perra, como ve mija.
-	char *token = strtok_r(rqL, sp, NULL);
+	char *token = strtok_r(rqL, sp, &spRequest);
 	size_t counter = 0;
 
 	for (size_t i = 0; i < size && token != NULL; i++) {
@@ -23,8 +22,8 @@ void splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], siz
 	}
 
 	if (counter != size || token != NULL) {
-		char errorMSG[] = "400 (Bad Request)";
-		send(clientSocket, errorMSG, sizeof(errorMSG)/sizeof(errorMSG[0]), 0);
+		char *errorMSG = "400 (Bad Request)";
+		send(clientSocket, errorMSG, strlen(errorMSG), 0);
 	}
 }
 
@@ -40,23 +39,23 @@ void splitHttpVersionMethod(int clientSocket, char *httpVersion, char *splitHttp
 	}
 
 	if (counter != size || token != NULL) {
-		char errorMSG[] = "400 (Bad Request)";
-		send(clientSocket, errorMSG, sizeof(errorMSG)/sizeof(errorMSG[0]), 0);
+		char *errorMSG = "400 (Bad Request)";
+		send(clientSocket, errorMSG, strlen(errorMSG), 0);
 	}
 
 	char *validateHttpVersion[] = {"HTTP", "1.1"};
 	int stringCompare = strcmp(splitHttpVersion[0], validateHttpVersion[0]);
 
 	if (stringCompare != 0) {
-		char errorMSG[] = "400 (Bad Request)";
-		send(clientSocket, errorMSG, sizeof(errorMSG)/sizeof(errorMSG[0]), 0);
+		char *errorMSG = "400 (Bad Request)";
+		send(clientSocket, errorMSG, strlen(errorMSG), 0);
 	}
 
 	stringCompare = strcmp(splitHttpVersion[1], validateHttpVersion[1]);
 
 	if (stringCompare != 0) {
-		char errorMSG[] = "505 (HTTP Version Not Supported)";
-		send(clientSocket, errorMSG, sizeof(errorMSG)/sizeof(errorMSG[0]), 0);
+		char *errorMSG = "505 (HTTP Version Not Supported)";
+		send(clientSocket, errorMSG, strlen(errorMSG), 0);
 	}
 }
 
@@ -89,7 +88,7 @@ int parseRequestLine(int clientSocket, RequestLine *requestLine, char *buffer, s
 	//Add all values to RequestLine
 	requestLine->method = splitReqLine[0];
 	requestLine->requestTarget = splitReqLine[1];
-	requestLine->method = splitReqLine[2];
+	requestLine->httpVersion = splitReqLine[2];
 	*bytesRead += bytesParsed;
 	return 0;
 }

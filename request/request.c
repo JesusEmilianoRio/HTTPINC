@@ -39,7 +39,7 @@ void initBuffer(Buffer *buffer) {
 
 
 typedef struct _request {
-	RequestLine *requestLine;
+	RequestLine requestLine;
 	State state;
 } Request;
 
@@ -50,25 +50,28 @@ int parseRequest(int fildes, Request *request, char* buffer, size_t bufferCount,
 	while(1) {
 		switch (request->state) {
 			case STATE_INIT:
-				// I have to check pointers to pointers. GADDEMIT
-				transition = parseRequestLine(fildes, request->requestLine,  buffer, bufferCount, &reader);
+				transition = parseRequestLine(fildes, &request->requestLine,  buffer, bufferCount, &reader);
 
 				if (transition == -1) {
 					return -1;
 				}
 
-				request->state = STATE_REQUESTHEADER;
+				request->state = STATE_DONE;
 				*pointerReader += reader;
 			case STATE_REQUESTHEADER:
-				//Desde aqui puedo pasar mi buffer hasta mi position de pointerReader.
+				// Parse request header. goddemit. I need to learn about hash maps.
 				break;
 			case STATE_REQUESTBODY:
 				break;
 			case STATE_DONE:
+				goto end_loop;
 				break;
 		
 		}
 	}
+
+	end_loop:
+		return 0;
 	
 }
 
@@ -108,7 +111,6 @@ char *request(int fildes){
 				continue;
 			}
 
-			printf("Reader: %s\n", buffer.items);
 
 		}
 	}

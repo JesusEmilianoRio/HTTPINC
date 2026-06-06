@@ -47,7 +47,7 @@ int main() {
 
 	printf("Listening on PORT: %hd\n", ntohs(addr.sin_port));
 
-	char*ptr = NULL;
+	char* ptr = NULL;
 	while (1) {
 		// Accept connection.
 		int clientSocket = accept(newSocket, (struct sockaddr*) &addr, (socklen_t*)&lenAddr);
@@ -61,6 +61,7 @@ int main() {
 		// que me llega
 		ptr = request(clientSocket);
 
+		printf("%s\n", ptr);
 		// ========================= END BUFFER ====================================
 		
 		// Close socket
