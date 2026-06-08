@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #define _GNU_SOURCE 
 #include <stdio.h>
 #include <sys/socket.h>
@@ -59,6 +60,12 @@ void splitHttpVersionMethod(int clientSocket, char *httpVersion, char *splitHttp
 	}
 }
 
+void initRequestLine(RequestLine *requestLine, const char* method, const char* requestTarget, const char* httpVersion) {
+	requestLine->method = (char*) malloc(strlen(method) + 1);
+	strcpy(requestLine->method, method);
+	
+}
+
 int parseRequestLine(int clientSocket, RequestLine *requestLine, char *buffer, size_t size, size_t *bytesRead) {
 	char* index = (char*) memmem(buffer, size, crlf, strlen(crlf));
 	
@@ -86,6 +93,7 @@ int parseRequestLine(int clientSocket, RequestLine *requestLine, char *buffer, s
 	splitHttpVersionMethod(clientSocket, splitReqLine[2], splitHtttpVersion, 2);
 	
 	//Add all values to RequestLine
+	// Aqui debo crear una funcion que inicialice mis requestLine y... los pase al heap.
 	requestLine->method = splitReqLine[0];
 	requestLine->requestTarget = splitReqLine[1];
 	requestLine->httpVersion = splitReqLine[2];

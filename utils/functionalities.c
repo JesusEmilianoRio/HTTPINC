@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include <unistd.h>
 
-size_t mystrcat(size_t pointer, char *dest, char *src) {
+size_t mystrcat(size_t pointer, char dest[], char src[]) {
 	while(*src) {
 		*(dest + pointer) = *src;
 		pointer++;
@@ -11,6 +11,7 @@ size_t mystrcat(size_t pointer, char *dest, char *src) {
 	return pointer;
 }
 
+// Tiene sentido que le haya puesto \0 por mi cuenta?
 void mystrcpy(char rqL[], char *buffer, size_t size){
 	size_t i = 0;
 

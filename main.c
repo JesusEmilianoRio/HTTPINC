@@ -61,7 +61,10 @@ int main() {
 		// que me llega
 		ptr = request(clientSocket);
 
-		printf("%s\n", ptr);
+		if (ptr != NULL) {
+			printf("%s\n", ptr);
+		}
+
 		// ========================= END BUFFER ====================================
 		
 		// Close socket

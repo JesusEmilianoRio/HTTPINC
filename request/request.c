@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 #include "./request.h"
@@ -26,15 +27,19 @@ typedef struct _buffer {
 	char *items;
 } Buffer;
 
-void initBuffer(Buffer *buffer) {
+int initBuffer(int fildes, Buffer *buffer) {
 	buffer->capacity = 8;
 	buffer->count = 0;
 
 	buffer->items = (char*) malloc(buffer->capacity);
 
 	if (buffer->items == NULL) {
-		printf("Error msg: %s\n", strerror(errno));
+		char errorMsg[] = "500 (Internal Server Error)";
+		send(fildes, errorMsg, strlen(errorMsg), 0);
+		return -1;
 	}
+
+	return 0;
 }
 
 
@@ -43,7 +48,8 @@ typedef struct _request {
 	State state;
 } Request;
 
-int parseRequest(int fildes, Request *request, char* buffer, size_t bufferCount, size_t *pointerReader){
+int parseRequest(int fildes, Request *request, char buffer[], size_t bufferCount, size_t *pointerReader){
+	char *readFromNewPosition = NULL;
 	int transition = 0;
 	size_t reader = 0;
 
@@ -59,7 +65,7 @@ int parseRequest(int fildes, Request *request, char* buffer, size_t bufferCount,
 				request->state = STATE_DONE;
 				*pointerReader += reader;
 			case STATE_REQUESTHEADER:
-				// Parse request header. goddemit. I need to learn about hash maps.
+				readFromNewPosition = buffer + *pointerReader;
 				break;
 			case STATE_REQUESTBODY:
 				break;
@@ -82,7 +88,11 @@ char *request(int fildes){
 
 	//Declare buffer
 	Buffer buffer = {0};
-	initBuffer(&buffer);
+	int err = initBuffer(fildes, &buffer);
+
+	if (err == -1) {
+		return NULL;
+	}
 
 	// N length of bytes read.
 	size_t n = 0;
@@ -100,7 +110,12 @@ char *request(int fildes){
 				buffer.capacity = buffer.capacity << 1;
 				buffer.items = (char*) realloc(buffer.items, buffer.capacity);
 				if (buffer.items == NULL) {
-					printf("Error msg: %s\n", strerror(errno));
+					char errorMsg[] = "500 (Internal Server Error)";
+					send(fildes, errorMsg, strlen(errorMsg), 0);
+
+					// Free others pointers. REMEMBER
+					free(buffer.items);
+					return NULL;
 				}
 			}
 
@@ -110,7 +125,6 @@ char *request(int fildes){
 			if (transition == -1) {
 				continue;
 			}
-
 
 		}
 	}
