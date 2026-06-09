@@ -56,17 +56,11 @@ int main() {
 			continue;
 		}
 
-		// ======================= HANDLING BUFFER =================================
-		// Aqui empieza mi logica de request. Aqui envio los datos del buffer por cada mensaje
-		// que me llega
 		ptr = request(clientSocket);
-
 		if (ptr != NULL) {
 			printf("%s\n", ptr);
 		}
 
-		// ========================= END BUFFER ====================================
-		
 		// Close socket
 		close(clientSocket);
 		free(ptr);

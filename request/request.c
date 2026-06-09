@@ -36,7 +36,7 @@ int initBuffer(int fildes, Buffer *buffer) {
 	if (buffer->items == NULL) {
 		char errorMsg[] = "500 (Internal Server Error)";
 		send(fildes, errorMsg, strlen(errorMsg), 0);
-		return 0;
+		return -2;
 	}
 
 	return 1;
@@ -49,7 +49,6 @@ typedef struct _request {
 } Request;
 
 int parseRequest(int fildes, Request *request, char buffer[], size_t bufferCount, size_t *pointerReader){
-	char *readFromNewPosition = NULL;
 	int transition = 0;
 	size_t reader = 0;
 
@@ -66,10 +65,11 @@ int parseRequest(int fildes, Request *request, char buffer[], size_t bufferCount
 					return transition;
 				}
 
-				request->state = STATE_DONE;
+				request->state = STATE_REQUESTHEADER;
 				*pointerReader += reader;
 			case STATE_REQUESTHEADER:
-				readFromNewPosition = buffer + *pointerReader;
+
+				request->state = STATE_DONE;
 				break;
 			case STATE_REQUESTBODY:
 				break;
@@ -80,8 +80,6 @@ int parseRequest(int fildes, Request *request, char buffer[], size_t bufferCount
 		}
 	}
 
-	// Aqui tambien devuelvo 0. Maldita sea.
-	// Necesito reconstruir mi automata finito ultra machine learning delux edition.
 	end_loop:
 		return 0;
 	
@@ -96,7 +94,7 @@ char *request(int fildes){
 	Buffer buffer = {0};
 	int err = initBuffer(fildes, &buffer);
 
-	if (err == 0) {
+	if (err == -2) {
 		return NULL;
 	}
 
@@ -125,12 +123,12 @@ char *request(int fildes){
 				}
 			}
 
-			currentPointerToBuffer = mystrcat(currentPointerToBuffer, buffer.items, octetBuffer);
-			int transition = parseRequest(fildes, &request, buffer.items, buffer.count, &pointerReader);
-
-			if (transition == 0) {
-				return NULL;
-			}
+			// Simulate a sliding window.
+			mystrcat(buffer.count - octetLength, buffer.items, octetBuffer);
+			
+			// I need a pointer to buffer.items... I think so.
+			char *pointerToBuffer = buffer.items + pointerReader;
+			int transition = parseRequest(fildes, &request, pointerToBuffer, buffer.count, &pointerReader);
 
 			if (transition == -1) {
 				continue;

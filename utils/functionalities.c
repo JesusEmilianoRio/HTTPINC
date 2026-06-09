@@ -1,14 +1,13 @@
 #include <stddef.h>
 #include <unistd.h>
 
-size_t mystrcat(size_t pointer, char dest[], char src[]) {
+void mystrcat(size_t pointer, char dest[], char src[]) {
 	while(*src) {
 		*(dest + pointer) = *src;
 		pointer++;
 		src++;
 	}
 
-	return pointer;
 }
 
 // Tiene sentido que le haya puesto \0 por mi cuenta?
