@@ -36,10 +36,10 @@ int initBuffer(int fildes, Buffer *buffer) {
 	if (buffer->items == NULL) {
 		char errorMsg[] = "500 (Internal Server Error)";
 		send(fildes, errorMsg, strlen(errorMsg), 0);
-		return -1;
+		return 0;
 	}
 
-	return 0;
+	return 1;
 }
 
 
@@ -58,8 +58,12 @@ int parseRequest(int fildes, Request *request, char buffer[], size_t bufferCount
 			case STATE_INIT:
 				transition = parseRequestLine(fildes, &request->requestLine,  buffer, bufferCount, &reader);
 
+				if (transition == 0) {
+					return transition;
+				}
+
 				if (transition == -1) {
-					return -1;
+					return transition;
 				}
 
 				request->state = STATE_DONE;
@@ -76,6 +80,8 @@ int parseRequest(int fildes, Request *request, char buffer[], size_t bufferCount
 		}
 	}
 
+	// Aqui tambien devuelvo 0. Maldita sea.
+	// Necesito reconstruir mi automata finito ultra machine learning delux edition.
 	end_loop:
 		return 0;
 	
@@ -90,7 +96,7 @@ char *request(int fildes){
 	Buffer buffer = {0};
 	int err = initBuffer(fildes, &buffer);
 
-	if (err == -1) {
+	if (err == 0) {
 		return NULL;
 	}
 
@@ -121,6 +127,10 @@ char *request(int fildes){
 
 			currentPointerToBuffer = mystrcat(currentPointerToBuffer, buffer.items, octetBuffer);
 			int transition = parseRequest(fildes, &request, buffer.items, buffer.count, &pointerReader);
+
+			if (transition == 0) {
+				return NULL;
+			}
 
 			if (transition == -1) {
 				continue;

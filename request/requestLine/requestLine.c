@@ -11,7 +11,7 @@
 char crlf[] = "\r\n";
 char *sp = " ";
 
-void splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], size_t size) {
+int splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], size_t size) {
 	char *spRequest;
 	char *token = strtok_r(rqL, sp, &spRequest);
 	size_t counter = 0;
@@ -22,10 +22,17 @@ void splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], siz
 		counter++;
 	}
 
+	// Que error devuelvo?
+	// Aqui no puede haber 0.
 	if (counter != size || token != NULL) {
 		char *errorMSG = "400 (Bad Request)";
 		send(clientSocket, errorMSG, strlen(errorMSG), 0);
+		return 0;
 	}
+
+	// This is some shitty logic.
+	// But, that's my current level. I can't complain.
+	return 1;
 }
 
 void splitHttpVersionMethod(int clientSocket, char *httpVersion, char *splitHttpVersion[], size_t size) {
@@ -86,7 +93,11 @@ int parseRequestLine(int clientSocket, RequestLine *requestLine, char *buffer, s
 	// Split Version
 	// Creo que mi splitReqLine debe ser una memoria en el heap.
 	char *splitReqLine[3] = {0};
-	splitRequestLineMethod(clientSocket, reqL, splitReqLine, 3);
+	int error = splitRequestLineMethod(clientSocket, reqL, splitReqLine, 3);
+
+	if (error == 0) {
+		return error;
+	}
 
 	// Validate HTTP/Version
 	char *splitHtttpVersion[2] = {0};
