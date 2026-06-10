@@ -57,10 +57,6 @@ int parseRequest(int fildes, Request *request, char buffer[], size_t bufferCount
 			case STATE_INIT:
 				transition = parseRequestLine(fildes, &request->requestLine,  buffer, bufferCount, &reader);
 
-				if (transition == 0) {
-					return transition;
-				}
-
 				if (transition == -1) {
 					return transition;
 				}
@@ -124,7 +120,7 @@ char *request(int fildes){
 			}
 
 			// Simulate a sliding window.
-			mystrcat(buffer.count - octetLength, buffer.items, octetBuffer);
+			mystrcat(buffer.count - n, buffer.items, octetBuffer);
 			
 			// I need a pointer to buffer.items... I think so.
 			char *pointerToBuffer = buffer.items + pointerReader;
