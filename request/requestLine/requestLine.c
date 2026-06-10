@@ -91,7 +91,6 @@ int parseRequestLine(int clientSocket, RequestLine *requestLine, char *buffer, s
 	mystrcpy(reqL, buffer, sizeReqLine);
 	
 	// Split Version
-	// Creo que mi splitReqLine debe ser una memoria en el heap.
 	char *splitReqLine[3] = {0};
 	int error = splitRequestLineMethod(clientSocket, reqL, splitReqLine, 3);
 
