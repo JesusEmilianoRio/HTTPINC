@@ -10,6 +10,7 @@
 
 char crlf[] = "\r\n";
 char *sp = " ";
+int error = -2;
 
 int splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], size_t size) {
 	char *spRequest;
@@ -22,20 +23,16 @@ int splitRequestLineMethod(int clientSocket, char rqL[], char *splitReqL[], size
 		counter++;
 	}
 
-	// Que error devuelvo?
-	// Aqui no puede haber 0.
 	if (counter != size || token != NULL) {
 		char *errorMSG = "400 (Bad Request)";
 		send(clientSocket, errorMSG, strlen(errorMSG), 0);
-		return 0;
+		return error;
 	}
 
-	// This is some shitty logic.
-	// But, that's my current level. I can't complain.
-	return 1;
+	return 0;
 }
 
-void splitHttpVersionMethod(int clientSocket, char *httpVersion, char *splitHttpVersion[], size_t size) {
+int splitHttpVersionMethod(int clientSocket, char httpVersion[], char *splitHttpVersion[], size_t size) {
 	char *spRequest;
 	char *token = strtok_r(httpVersion, "/", &spRequest);
 	size_t counter = 0;
@@ -49,6 +46,7 @@ void splitHttpVersionMethod(int clientSocket, char *httpVersion, char *splitHttp
 	if (counter != size || token != NULL) {
 		char *errorMSG = "400 (Bad Request)";
 		send(clientSocket, errorMSG, strlen(errorMSG), 0);
+		return error;
 	}
 
 	char *validateHttpVersion[] = {"HTTP", "1.1"};
@@ -57,6 +55,7 @@ void splitHttpVersionMethod(int clientSocket, char *httpVersion, char *splitHttp
 	if (stringCompare != 0) {
 		char *errorMSG = "400 (Bad Request)";
 		send(clientSocket, errorMSG, strlen(errorMSG), 0);
+		return error;
 	}
 
 	stringCompare = strcmp(splitHttpVersion[1], validateHttpVersion[1]);
@@ -64,13 +63,47 @@ void splitHttpVersionMethod(int clientSocket, char *httpVersion, char *splitHttp
 	if (stringCompare != 0) {
 		char *errorMSG = "505 (HTTP Version Not Supported)";
 		send(clientSocket, errorMSG, strlen(errorMSG), 0);
+		return error;
 	}
+
+	return 0;
 }
 
-void initRequestLine(RequestLine *requestLine, const char* method, const char* requestTarget, const char* httpVersion) {
+int initRequestLine(int fildes, RequestLine *requestLine, const char* method, const char* requestTarget, const char* httpVersion) {
+	// Add method to request.method
 	requestLine->method = (char*) malloc(strlen(method) + 1);
+	if (requestLine->method == NULL) {
+		char errorMsg[] = "500 (Internal Server Error)";
+		send(fildes, errorMsg, strlen(errorMsg), 0);
+		free(requestLine->method);
+		return error;
+	}
+
 	strcpy(requestLine->method, method);
-	
+
+	// Add requestTarget to request.requestTarget
+	requestLine->requestTarget = (char*) malloc(strlen(requestTarget) + 1);
+	if (requestLine->requestTarget == NULL) {
+		char errorMsg[] = "500 (Internal Server Error)";
+		send(fildes, errorMsg, strlen(errorMsg), 0);
+		free(requestLine->requestTarget);
+		return error;
+	}
+
+	strcpy(requestLine->requestTarget, requestTarget);
+
+	// Add httpVersion to request.httpVersion
+	requestLine->httpVersion = (char*) malloc(strlen(httpVersion) + 1);
+	if (requestLine->httpVersion == NULL) {
+		char errorMsg[] = "500 (Internal Server Error)";
+		send(fildes, errorMsg, strlen(errorMsg), 0);
+		free(requestLine->httpVersion);
+		return error;
+	}
+
+	strcpy(requestLine->httpVersion, httpVersion);
+
+	return 0;
 }
 
 int parseRequestLine(int clientSocket, RequestLine *requestLine, char *buffer, size_t size, size_t *bytesRead) {
@@ -92,21 +125,32 @@ int parseRequestLine(int clientSocket, RequestLine *requestLine, char *buffer, s
 	
 	// Split Version
 	char *splitReqLine[3] = {0};
-	int error = splitRequestLineMethod(clientSocket, reqL, splitReqLine, 3);
+	int getError = splitRequestLineMethod(clientSocket, reqL, splitReqLine, 3);
 
-	if (error == 0) {
-		return error;
+	// Copy httpVersion before validate it, because strtok_r modifies splirReqLine[2]
+	size_t lenHttpVersion = strlen(splitReqLine[2]) + 1;
+	char httpVersion[lenHttpVersion];
+	strcpy(httpVersion, splitReqLine[2]);
+
+	if (getError == error) {
+		return getError;
 	}
 
 	// Validate HTTP/Version
 	char *splitHtttpVersion[2] = {0};
-	splitHttpVersionMethod(clientSocket, splitReqLine[2], splitHtttpVersion, 2);
+	getError = splitHttpVersionMethod(clientSocket, splitReqLine[2], splitHtttpVersion, 2);
+
+	if (getError == error) {
+		return getError;
+	}
 	
-	//Add all values to RequestLine
-	// Aqui debo crear una funcion que inicialice mis requestLine y... los pase al heap.
-	requestLine->method = splitReqLine[0];
-	requestLine->requestTarget = splitReqLine[1];
-	requestLine->httpVersion = splitReqLine[2];
+	// Assign all validated values into requestLine.
+	getError = initRequestLine(clientSocket, requestLine, splitReqLine[0], splitReqLine[1], httpVersion);
+
+	if (getError == error) {
+		return getError;
+	}
+	
 	*bytesRead += bytesParsed;
 	return 0;
 }

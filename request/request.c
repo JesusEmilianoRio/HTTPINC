@@ -18,6 +18,7 @@ typedef enum {
 	STATE_REQUESTHEADER,
 	STATE_REQUESTBODY,
 	STATE_DONE,
+	STATE_ERROR,
 } State;
 
 //Init buffer
@@ -39,7 +40,7 @@ int initBuffer(int fildes, Buffer *buffer) {
 		return -2;
 	}
 
-	return 1;
+	return 0;
 }
 
 
@@ -57,6 +58,10 @@ int parseRequest(int fildes, Request *request, char buffer[], size_t bufferCount
 			case STATE_INIT:
 				transition = parseRequestLine(fildes, &request->requestLine,  buffer, bufferCount, &reader);
 
+				if (transition == -2) {
+					request->state = STATE_ERROR;
+				}
+
 				if (transition == -1) {
 					return transition;
 				}
@@ -70,14 +75,13 @@ int parseRequest(int fildes, Request *request, char buffer[], size_t bufferCount
 			case STATE_REQUESTBODY:
 				break;
 			case STATE_DONE:
-				goto end_loop;
-				break;
+				request->state = STATE_DONE;
+				return 0;
+			case STATE_ERROR:
+				return -2;
 		
 		}
 	}
-
-	end_loop:
-		return 0;
 	
 }
 
@@ -126,12 +130,23 @@ char *request(int fildes){
 			char *pointerToBuffer = buffer.items + pointerReader;
 			int transition = parseRequest(fildes, &request, pointerToBuffer, buffer.count, &pointerReader);
 
+			if (transition == -2) {
+				return NULL;
+			}
+
 			if (transition == -1) {
 				continue;
 			}
+		
 
 		}
 	}
+	
+	// Despues sabre que hacer con esto.
+	free(request.requestLine.method);
+	free(request.requestLine.requestTarget);
+	free(request.requestLine.httpVersion);
+
 
 	return buffer.items;
 }
