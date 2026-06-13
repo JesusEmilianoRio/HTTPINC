@@ -8,6 +8,12 @@ typedef struct _hash {
 	char* value;
 } Hash;
 
+typedef struct _hashTable {
+	Hash *ht;
+	int capacity;
+	int size;
+} HashTable;
+
 static uint64_t hash_key(const char *key) {
 	uint64_t hash = FNV_OFFSET;
 
@@ -23,5 +29,6 @@ int parseRequestHeader() {
 	uint64_t h = hash_key("emi");
 
 	printf("%zu\n", h);
+
 	return 0;
 }
