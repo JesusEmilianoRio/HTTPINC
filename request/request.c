@@ -8,6 +8,7 @@
 
 #include "./request.h"
 #include "../utils/functionalities.h"
+#include "requestHeader/requestHeader.h"
 #include "requestLine/requestLine.h"
 
 extern int errno;
@@ -54,6 +55,7 @@ int parseRequest(int fildes, Request *request, char buffer[], size_t bufferCount
 				request->state = STATE_REQUESTHEADER;
 				*pointerReader += reader;
 			case STATE_REQUESTHEADER:
+//				transition = parseRequestHeader(fildes, );
 
 				request->state = STATE_DONE;
 				break;

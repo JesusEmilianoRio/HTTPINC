@@ -16,6 +16,12 @@ typedef struct _node {
 	struct _node *next;
 } Node;
 
+typedef struct _linkedList {
+	Node *head;
+	Node *tail;
+	size_t capacity;
+} LinkedList;
+
 // Hash table
 typedef struct _hash {
 	char* key;
@@ -38,19 +44,9 @@ static uint64_t hash_key(const char *key) {
 
 	return hash;
 }
-//int parseRequestLine(int clientSocket, RequestLine *requestLine, char *buffer, size_t size, size_t *bytesRead) {
-//	char* index = (char*) memmem(buffer, size, crlf, strlen(crlf));
-//	
-//	// It will return me to my init state.
-//	if (index == NULL) {
-//		return -1;
-//	}
-//
-//	// Total Bytes Parsed.
-//	size_t bytesParsed = (index - buffer) + strlen(crlf);
-//
 
-// Le agregare yo el requestHeader desde aca?
+// TODO:
+// 1. Change Request parameter.
 int parseRequestHeader(int clientSocket, Request *request, char *buffer, size_t size, size_t *bytesRead) {
 	char* index = (char*) memmem(buffer, size, crlf, strlen(crlf));
 	
