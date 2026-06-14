@@ -12,15 +12,6 @@
 
 extern int errno;
 
-// Initlize state
-typedef enum {
-	STATE_INIT,
-	STATE_REQUESTHEADER,
-	STATE_REQUESTBODY,
-	STATE_DONE,
-	STATE_ERROR,
-} State;
-
 //Init buffer
 typedef struct _buffer {
 	size_t capacity;
@@ -42,12 +33,6 @@ int initBuffer(int fildes, Buffer *buffer) {
 
 	return 0;
 }
-
-
-typedef struct _request {
-	RequestLine requestLine;
-	State state;
-} Request;
 
 int parseRequest(int fildes, Request *request, char buffer[], size_t bufferCount, size_t *pointerReader){
 	int transition = 0;
