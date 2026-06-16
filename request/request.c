@@ -46,6 +46,7 @@ int parseRequest(int fildes, Request *request, char buffer[], size_t bufferCount
 
 				if (transition == -2) {
 					request->state = STATE_ERROR;
+					continue;
 				}
 
 				if (transition == -1) {
@@ -55,7 +56,16 @@ int parseRequest(int fildes, Request *request, char buffer[], size_t bufferCount
 				request->state = STATE_REQUESTHEADER;
 				*pointerReader += reader;
 			case STATE_REQUESTHEADER:
-//				transition = parseRequestHeader(fildes, );
+				transition = parseRequestHeader(fildes, &request->hashTable, buffer, bufferCount, &reader);
+
+				if (transition == -2) {
+					request->state = STATE_ERROR;
+					continue;
+				}
+
+				if (transition == -1) {
+					return transition;
+				}
 
 				request->state = STATE_DONE;
 				break;
@@ -125,7 +135,6 @@ char *request(int fildes){
 				continue;
 			}
 		
-
 		}
 	}
 	

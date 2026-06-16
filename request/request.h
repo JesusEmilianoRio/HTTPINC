@@ -7,6 +7,21 @@ typedef struct _requestLine {
 	char *httpVersion;
 } RequestLine;
 
+// Linked List
+typedef struct _node {
+	char *key;
+	char *value;
+	struct _node *next;
+} Node;
+
+// Hash table
+typedef struct _hashTable {
+	Node **hash;
+	int capacity;
+	int size;
+} HashTable;
+
+
 // Init State
 typedef enum {
 	STATE_INIT,
@@ -19,6 +34,7 @@ typedef enum {
 //Init Request
 typedef struct _request {
 	RequestLine requestLine;
+	HashTable hashTable;
 	State state;
 } Request;
 
