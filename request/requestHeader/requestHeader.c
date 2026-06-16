@@ -16,20 +16,10 @@ typedef struct _node {
 	struct _node *next;
 } Node;
 
-typedef struct _linkedList {
-	Node *head;
-	Node *tail;
-	size_t capacity;
-} LinkedList;
-
 // Hash table
-typedef struct _hash {
-	char* key;
-	char* value;
-} Hash;
 
 typedef struct _hashTable {
-	Hash *ht;
+	Node **ht;
 	int capacity;
 	int size;
 } HashTable;
