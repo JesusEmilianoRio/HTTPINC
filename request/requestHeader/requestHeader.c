@@ -35,11 +35,12 @@ int initHash(int clientSocket, HashTable *requestHeader) {
 		return error;
 	}
 
-	// Despues me preocupo de este retorno.
-	// TODO:
-	// 1. ARREGLAR ESTE RETORNO
 	return 0;
 };
+
+int parseFieldName(){
+	return 0;
+}
 
 int parseRequestHeader(int clientSocket, HashTable *requestHeader, char *buffer, size_t size, size_t *bytesRead) {
 	char* index = (char*) memmem(buffer, size, crlf, strlen(crlf));
@@ -58,6 +59,7 @@ int parseRequestHeader(int clientSocket, HashTable *requestHeader, char *buffer,
 	if (index > 0) {
 		
 		
+		return -1;
 	}
 
 	// Transition.
